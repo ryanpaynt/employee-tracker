@@ -70,7 +70,7 @@ const viewAllEmployees = () => {
 };
 
 const viewByDep = () => {
-    console.log("Viewing EMployees by Department...\n");
+    console.log("Viewing Employees by Department...\n");
     const query =
         `SELECT d.id, d.name AS budget
     FROM employee e
@@ -81,9 +81,40 @@ const viewByDep = () => {
     GROUP BY d.id, d.name`
     connection.query(query, (err, res) => {
         if (err) throw err;
-        console.table(res);
-        console.table("Employees are Shown by Department.");
+        const departments = res.map(data => ({ id: data.id, name: data.budget }));
+        console.table(departments);
+        console.table("Departments generated.");
+        employeeFromDep(departments);
     })
+}
+
+const employeeFromDep = (deps) => {
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                message: 'Which department do you want?',
+                name: 'depSearch',
+                choices: deps
+            }
+        ]).then((res) => {
+            console.log(`Generating Employees by ${res.depSearch}...\n`);
+
+            const query =
+                `SELECT e.id, e.f_name, e.l_name, r.title, d.name AS department 
+                FROM employee e
+                JOIN role r
+                    ON e.role_id = r.id
+                JOIN department d
+                ON d.id = r.department_id
+                WHERE d.name = ?`
+
+            connection.query(query, res.depSearch, (err, res) => {
+                if (err) throw err;
+                console.table(res);
+                console.log('Employees generated');
+            })
+        });
 }
 
 connection.connect((err) => {

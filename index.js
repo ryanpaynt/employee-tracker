@@ -9,7 +9,11 @@ const connection = mysql.createConnection({
     database: 'employee_db'
 });
 
-const init = () => {
+const promptOne = () => {
+    
+}
+
+const viewAllEmployees = () => {
     console.log('Showing all results...\n');
     const query = 
     `SELECT e.id, e.f_name, e.l_name, r.title, d.name AS department, r.salary, CONCAT(m.f_name, ' ', m.l_name) AS manager
@@ -23,11 +27,14 @@ const init = () => {
     connection.query(query, (err,res) => {
         if(err) throw err;
         console.table(res);
+        console.table("Employees generated.");
     });
 };
+
+
 
 connection.connect((err) => {
     if(err) throw err;
     console.log("initializing...");
-    init();
+    viewAllEmployees();
 });

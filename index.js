@@ -37,6 +37,7 @@ const promptOne = () => {
                     viewBy();
                     break;
                 case 'Add Employee':
+                    addEmpl();
                     break;
                 case 'Remove Employee':
                     break;
@@ -56,7 +57,7 @@ const viewBy = () => {
         type: 'list',
         message: 'What would you like to view by?',
         name: 'view',
-        choices: ['Departments', 'Roles', 'Employee']
+        choices: ['Departments', 'Roles', 'Manager']
     }
 ]).then((res) => {
     switch(res.view){
@@ -66,12 +67,65 @@ const viewBy = () => {
         case 'Roles':
             viewByRole();
             break;
-        default:
-            viewByEmpl();
-            break;
     }
 });
 }
+
+const addEmpl = () => {
+    console.log('Inserting a new employee');
+
+    const query = 
+    `SELECT r.id, r.title, r.salary
+    FROM role r`
+
+    connection.query(query, (err,res) =>{
+        if(err)throw err;
+        const arrRoles = res.map(data => ({id: data.id, title: data.title, salary: data.salary}));
+
+        console.table(res);
+        promptRole(arrRoles);
+    })
+}
+
+const promptRole = (arrRoles) => {
+    inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the employee's first name?",
+        name: "f_name"
+      },
+      {
+        type: "input",
+        message: "What is the employee's last name?",
+        name: "l_name"
+      },
+      {
+        type: "list",
+        message: "What is the employee's role?",
+        name: "roleId",
+        choices: arrRoles//.map(function(item) { return item["title"] })
+      },
+    ]).then((res)=>{
+        console.log(res);
+
+        const query =  
+        `INSERT INTO employee SET ?`
+        connection.query(query, 
+            {
+                f_name: res.f_name,
+                l_name: res.l_name,
+                role_id: res.roleId,
+                manager_id: res.managerId
+            }
+            , (err,res) =>{
+            if(err)throw err;
+            console.table(res);
+
+        })
+    });
+}
+
 
 const viewAllEmployees = () => {
     console.log('Showing all results...\n');
@@ -92,6 +146,23 @@ const viewAllEmployees = () => {
     });
 };
 
+const viewByRole = () => {
+    console.log("Viewing Employees by Role...\n");
+    const query =
+        `SELECT r.id, r.title AS title
+    FROM employee e
+    LEFT JOIN role r
+        ON e.role_id = r.id
+    GROUP BY r.id, r.title`
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        const roles = res.map(data => ({ id: data.id, name: data.title }));
+        console.table(roles);
+        console.table(res);
+        employeeFromRol(roles);
+    })
+}
+
 const viewByDep = () => {
     console.log("Viewing Employees by Department...\n");
     const query =
@@ -111,21 +182,34 @@ const viewByDep = () => {
     })
 }
 
-const viewByRole = () => {
-    console.log("Viewing Employees by Role...\n");
-    const query =
-        `SELECT r.id, r.title AS title
-    FROM employee e
-    LEFT JOIN role r
-        ON e.role_id = r.id
-    GROUP BY r.id, r.title`
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        //const departments = res.map(data => ({ id: data.id, name: data.name }));
-        //console.table(departments);
-        console.table(res);
-        //employeeFromDep(departments);
-    })
+const employeeFromRol = (roles) => {
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                message: 'Which role do you want?',
+                name: 'roleSearch',
+                choices: roles
+            }
+        ]).then((res) => {
+            console.log(`Generating Employees by ${res.roleSearch}...\n`);
+
+            const query =
+                `SELECT e.id, e.f_name, e.l_name, r.title, d.name AS department 
+                FROM employee e
+                JOIN role r
+                    ON e.role_id = r.id
+                JOIN department d
+                ON d.id = r.department_id
+                WHERE r.title = ?`
+
+            connection.query(query, res.roleSearch, (err, res) => {
+                if (err) throw err;
+                console.table(res);
+                console.log('Employees generated.');
+                promptOne();
+            });
+        });
 }
 
 const employeeFromDep = (deps) => {

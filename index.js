@@ -19,7 +19,7 @@ const promptOne = () => {
                 choices:
                     [
                         'View Employees',
-                        'View Employees by Department',
+                        'View Employees by ...',
                         'Add Employee',
                         'Remove Employee',
                         'Update Employee Role',
@@ -33,8 +33,8 @@ const promptOne = () => {
                 case 'View Employees':
                     viewAllEmployees();
                     break;
-                case 'View Employees by Department':
-                    viewByDep();
+                case 'View Employees by ...':
+                    viewBy();
                     break;
                 case 'Add Employee':
                     break;
@@ -48,6 +48,29 @@ const promptOne = () => {
                     break;
             }
         })
+}
+
+const viewBy = () => {
+    inquirer
+    .prompt([{
+        type: 'list',
+        message: 'What would you like to view by?',
+        name: 'view',
+        choices: ['Departments', 'Roles', 'Employee']
+    }
+]).then((res) => {
+    switch(res.view){
+        case 'Departments':
+            viewByDep();
+            break;
+        case 'Roles':
+            viewByRole();
+            break;
+        default:
+            viewByEmpl();
+            break;
+    }
+});
 }
 
 const viewAllEmployees = () => {
@@ -72,7 +95,7 @@ const viewAllEmployees = () => {
 const viewByDep = () => {
     console.log("Viewing Employees by Department...\n");
     const query =
-        `SELECT d.id, d.name AS budget
+        `SELECT d.id, d.name AS name
     FROM employee e
     LEFT JOIN role r
         ON e.role_id = r.id
@@ -81,10 +104,27 @@ const viewByDep = () => {
     GROUP BY d.id, d.name`
     connection.query(query, (err, res) => {
         if (err) throw err;
-        const departments = res.map(data => ({ id: data.id, name: data.budget }));
+        const departments = res.map(data => ({ id: data.id, name: data.name }));
         console.table(departments);
         console.table("Departments generated.");
         employeeFromDep(departments);
+    })
+}
+
+const viewByRole = () => {
+    console.log("Viewing Employees by Role...\n");
+    const query =
+        `SELECT r.id, r.title AS title
+    FROM employee e
+    LEFT JOIN role r
+        ON e.role_id = r.id
+    GROUP BY r.id, r.title`
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        //const departments = res.map(data => ({ id: data.id, name: data.name }));
+        //console.table(departments);
+        console.table(res);
+        //employeeFromDep(departments);
     })
 }
 
@@ -112,8 +152,9 @@ const employeeFromDep = (deps) => {
             connection.query(query, res.depSearch, (err, res) => {
                 if (err) throw err;
                 console.table(res);
-                console.log('Employees generated');
-            })
+                console.log('Employees generated.');
+                promptOne();
+            });
         });
 }
 

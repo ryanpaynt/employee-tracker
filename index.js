@@ -80,7 +80,8 @@ const addEmpl = () => {
 
     connection.query(query, (err,res) =>{
         if(err)throw err;
-        const arrRoles = res.map(data => ({id: data.id, title: data.title, salary: data.salary}));
+        console.log(res);
+        const arrRoles = res.map(data => ({ name: data.title, value: data.id }));
 
         console.table(res);
         promptRole(arrRoles);

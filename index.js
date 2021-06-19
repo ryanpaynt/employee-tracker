@@ -19,8 +19,8 @@ const promptOne = () => {
                 choices:
                     [
                         'View Employees',
-                        'View Employees by ...',
-                        'Add Employee',
+                        'View Employees by...',
+                        'Add...',
                         'Remove Employee',
                         'Update Employee Role',
                         'Add Role',
@@ -33,11 +33,11 @@ const promptOne = () => {
                 case 'View Employees':
                     viewAllEmployees();
                     break;
-                case 'View Employees by ...':
+                case 'View Employees by...':
                     viewBy();
                     break;
-                case 'Add Employee':
-                    addEmpl();
+                case 'Add...':
+                    addBy();
                     break;
                 case 'Remove Employee':
                     break;
@@ -53,7 +53,8 @@ const promptOne = () => {
 
 const viewBy = () => {
     inquirer
-    .prompt([{
+    .prompt([
+    {
         type: 'list',
         message: 'What would you like to view by?',
         name: 'view',
@@ -71,6 +72,79 @@ const viewBy = () => {
 });
 }
 
+const addBy = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'list',
+            message: 'What would you like to add?',
+            name: 'listAdd',
+            choices: ['Department', 'Role', 'Employee']
+        }
+]).then((res) =>{
+    switch(res.listAdd){
+        case 'Department':
+            addDep();
+            break;
+        case 'Role':
+            addRole();
+            break;
+        default:
+            addEmpl();
+    }
+});
+}
+
+const addRole = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'input',
+            message: 'What is the name of the role?',
+            name: 'addRole'
+        },
+        {
+            type: 'input',
+            message: 'What is the salary?',
+            name: 'addSalary'
+        }
+]).then((res) =>{
+    const query =  
+        `INSERT INTO role SET ?`
+        connection.query(query, 
+            {
+                title: res.addRole,
+                salary: res.addSalary,
+            }
+            , (err,res) =>{
+            if(err)throw err;
+            promptOne();
+        })
+});
+}
+
+const addDep = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'input',
+            message: 'What is the name of the department?',
+            name: 'addDep'
+        }
+]).then((res) =>{
+    const query =  
+        `INSERT INTO department SET ?`
+        connection.query(query, 
+            {
+                name: res.addDep,
+            }
+            , (err,res) =>{
+            if(err)throw err;
+            promptOne();
+        })
+});
+}
+
 const addEmpl = () => {
     console.log('Inserting a new employee');
 
@@ -80,10 +154,7 @@ const addEmpl = () => {
 
     connection.query(query, (err,res) =>{
         if(err)throw err;
-        console.log(res);
         const arrRoles = res.map(data => ({ name: data.title, value: data.id }));
-
-        console.table(res);
         promptRole(arrRoles);
     })
 }
@@ -105,10 +176,9 @@ const promptRole = (arrRoles) => {
         type: "list",
         message: "What is the employee's role?",
         name: "roleId",
-        choices: arrRoles//.map(function(item) { return item["title"] })
+        choices: arrRoles
       },
     ]).then((res)=>{
-        console.log(res);
 
         const query =  
         `INSERT INTO employee SET ?`
@@ -117,12 +187,11 @@ const promptRole = (arrRoles) => {
                 f_name: res.f_name,
                 l_name: res.l_name,
                 role_id: res.roleId,
-                manager_id: res.managerId
+                manager_id: null
             }
             , (err,res) =>{
             if(err)throw err;
-            console.table(res);
-
+            promptOne();
         })
     });
 }

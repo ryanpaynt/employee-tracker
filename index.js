@@ -36,8 +36,16 @@ const promptOne = () => {
                 case 'Add...':
                     addBy();
                     break;
+                default:
+                    quit();
+                    break;
             }
         })
+}
+
+const quit = () => {
+    console.log('Quitting app...\n');
+    return process.exit(22);
 }
 
 const viewBy = () => {

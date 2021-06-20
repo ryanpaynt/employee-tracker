@@ -74,12 +74,10 @@ const setupUpd = () => {
 
                 connection.query(query, (err,res) =>{
                     if(err)throw err;
-                    const arrRoles = res.map(data => ({ name: data.name, value: data.id }));
+                    const arrRoles = res.map(data => ({ name: data.title, value: data.id }));
+                    console.log(arrRoles);
                     updRolPrompt(arrRoles);
                 });
-                break;
-            default:
-                //updManPrompt();
                 break;
         }
     });

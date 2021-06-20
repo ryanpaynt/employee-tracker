@@ -21,6 +21,7 @@ const promptOne = () => {
                         'View Employees',
                         'View Employees by...',
                         'Add...',
+                        'Update...',
                         'Quit'
                     ]
             },
@@ -36,11 +37,25 @@ const promptOne = () => {
                 case 'Add...':
                     addBy();
                     break;
+                case 'Update...':
+                    setupUpd();
                 default:
                     quit();
                     break;
             }
         })
+}
+
+const setupUpd = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'list',
+            message: 'What would you like to update?',
+            name: 'updList',
+            choices ['Department', 'Role', 'Manager']
+        }
+    ])
 }
 
 const quit = () => {
@@ -134,6 +149,7 @@ const addRole = (arr) => {
             }
             , (err,res) =>{
             if(err)throw err;
+            console.log('Your role has been added!');
             promptOne();
         })
 });
@@ -156,6 +172,7 @@ const addDep = () => {
             }
             , (err,res) =>{
             if(err)throw err;
+            console.log('Your department has been added!');
             promptOne();
         })
 });
@@ -207,6 +224,7 @@ const promptRole = (arrRoles) => {
             }
             , (err,res) =>{
             if(err)throw err;
+            console.log('Your employee has been added!');
             promptOne();
         })
     });

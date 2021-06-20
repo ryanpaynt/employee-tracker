@@ -21,9 +21,6 @@ const promptOne = () => {
                         'View Employees',
                         'View Employees by...',
                         'Add...',
-                        'Remove Employee',
-                        'Update Employee Role',
-                        'Add Role',
                         'Quit'
                     ]
             },
@@ -38,14 +35,6 @@ const promptOne = () => {
                     break;
                 case 'Add...':
                     addBy();
-                    break;
-                case 'Remove Employee':
-                    break;
-                case 'Update Employee Role':
-                    break;
-                case 'Add Role':
-                    break;
-                default:
                     break;
             }
         })
@@ -87,7 +76,7 @@ const addBy = () => {
             addDep();
             break;
         case 'Role':
-            addRole();
+            setupRole();
             break;
         default:
             addEmpl();
@@ -95,7 +84,18 @@ const addBy = () => {
 });
 }
 
-const addRole = () => {
+const setupRole = () => {
+    const query = 
+    `SELECT * FROM department`
+
+    connection.query(query, (err,res) =>{
+        if(err)throw err;
+        const arrRoles = res.map(data => ({ name: data.name, value: data.id }));
+        addRole(arrRoles);
+    })
+}
+
+const addRole = (arr) => {
     inquirer
     .prompt([
         {
@@ -109,9 +109,10 @@ const addRole = () => {
             name: 'addSalary'
         },
         {
-            type: 'input',
+            type: 'list',
             message: 'What department does it belong to?',
-            name: 'dept'
+            name: 'dept',
+            choices: arr
         }
 
 ]).then((res) =>{
@@ -121,6 +122,7 @@ const addRole = () => {
             {
                 title: res.addRole,
                 salary: res.addSalary,
+                department_id: res.dept
             }
             , (err,res) =>{
             if(err)throw err;

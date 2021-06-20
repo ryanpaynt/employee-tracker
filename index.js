@@ -39,6 +39,7 @@ const promptOne = () => {
                     break;
                 case 'Update...':
                     setupUpd();
+                    break;
                 default:
                     quit();
                     break;
@@ -53,9 +54,93 @@ const setupUpd = () => {
             type: 'list',
             message: 'What would you like to update?',
             name: 'updList',
-            choices ['Department', 'Role', 'Manager']
+            choices: ['Department', 'Role', 'Manager']
         }
-    ])
+    ]).then((res) =>{
+        switch(res.updList){
+            case 'Department':
+                var query = 
+                `SELECT * FROM department`
+            
+                connection.query(query, (err,res) =>{
+                    if(err)throw err;
+                    const arrDept = res.map(data => ({name: data.name, value: data.id}));
+                    updDepPrompt(arrDept);
+                });
+                break;
+            case 'Role':
+                var query = 
+                `SELECT * FROM role`
+
+                connection.query(query, (err,res) =>{
+                    if(err)throw err;
+                    const arrRoles = res.map(data => ({ name: data.name, value: data.id }));
+                    updRolPrompt(arrRoles);
+                });
+                break;
+            default:
+                //updManPrompt();
+                break;
+        }
+    });
+}
+
+const updRolPrompt = (arr) => {
+    inquirer
+    .prompt([
+        {
+            type: 'list',
+            message: 'What would you like to update?',
+            name: 'rolList',
+            choices: arr
+        },
+        {
+            type: 'input',
+            message: 'What would you like to name the role?',
+            name: 'rolRename',
+        },
+        {
+            type: 'input',
+            message: 'What is the desired salary?',
+            name: 'rolSalary',
+        }
+    ]).then((res) => {
+        console.log(`Updating ${res.deptList}`);
+
+        var query = `UPDATE department SET ? WHERE ?`
+        connection.query(query, [{name: res.depList}, {name: res.depRename}, {salary: res.rolSalary}], (err,res) =>{
+            if(err) throw err;
+            console.log('Role updated');
+            promptOne();
+        });
+    });
+}
+
+const updDepPrompt = (arr) => {
+    console.log('hit');
+    inquirer
+    .prompt([
+        {
+            type: 'list',
+            message: 'What would you like to update?',
+            name: 'deptList',
+            choices: arr
+        },
+        {
+            type: 'input',
+            message: 'What would you like to name the department?',
+            name: 'depRename',
+        }
+    ]).then((res) => {
+        console.log(`Updating ${res.deptList}`);
+
+        var query = `UPDATE department SET ? WHERE ?`
+        connection.query(query, [{name: res.depList}, {name: res.depRename}], (err,res) =>{
+            if(err) throw err;
+            console.log('Department updated');
+            promptOne();
+        });
+    });
 }
 
 const quit = () => {

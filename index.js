@@ -107,7 +107,13 @@ const addRole = () => {
             type: 'input',
             message: 'What is the salary?',
             name: 'addSalary'
+        },
+        {
+            type: 'input',
+            message: 'What department does it belong to?',
+            name: 'dept'
         }
+
 ]).then((res) =>{
     const query =  
         `INSERT INTO role SET ?`

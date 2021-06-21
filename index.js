@@ -103,10 +103,10 @@ const updRolPrompt = (arr) => {
             name: 'rolSalary',
         }
     ]).then((res) => {
-        console.log(`Updating ${res.deptList}`);
+        console.log(`Updating ${res.rolList}`);
 
         var query = `UPDATE department SET ? WHERE ?`
-        connection.query(query, [{name: res.depList}, {name: res.depRename}, {salary: res.rolSalary}], (err,res) =>{
+        connection.query(query, [{name: res.rolList}, {name: res.rolRename}, {salary: res.rolSalary}], (err,res) =>{
             if(err) throw err;
             console.log('Role updated');
             promptOne();
@@ -217,7 +217,7 @@ const addRole = (arr) => {
         {
             type: 'list',
             message: 'What department does it belong to?',
-            name: 'dept',
+            name: 'role',
             choices: arr
         }
 
@@ -228,7 +228,7 @@ const addRole = (arr) => {
             {
                 title: res.addRole,
                 salary: res.addSalary,
-                department_id: res.dept
+                department_id: res.role
             }
             , (err,res) =>{
             if(err)throw err;
